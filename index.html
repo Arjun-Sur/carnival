@@ -60,7 +60,8 @@
         <div class="hole" data-index="4">🕳️</div>
     </div>
     <button id="startBtn">Start Game</button>
-
+    
+    <script src="/Controller.min.js"></script>
     <script>
         const holes = document.querySelectorAll('.hole');
         const startBtn = document.getElementById('startBtn');
@@ -69,6 +70,7 @@
         let score = 0;
         let rounds = 0;
         let currentGameActive = false;
+        let holesEnabled = false;
 
         function updateScore() {
             scoreElement.textContent = `Score: ${score}`;
@@ -94,6 +96,7 @@
         }
 
         function enableHoles() {
+            holesEnabled = true;
             holes.forEach(hole => {
                 hole.textContent = '🕳️';
                 hole.style.pointerEvents = 'auto';
@@ -102,6 +105,7 @@
         }
 
         function disableHoles() {
+            holesEnabled = false;
             holes.forEach(hole => {
                 hole.style.pointerEvents = 'none';
             });
@@ -109,8 +113,12 @@
 
         function handleHoleClick(e) {
             const selectedHole = parseInt(e.target.dataset.index);
+            handleHoleSelect(selectedHole);
+        }
+
+        function handleHoleSelect(hole) {
             disableHoles();
-            revealMole(selectedHole);
+            revealMole(hole);
         }
 
         function revealMole(selectedHole) {
@@ -144,6 +152,23 @@
         }
 
         startBtn.addEventListener('click', startGame);
+
+        Controller.search();
+
+        window.addEventListener('gc.button.press', function(event) {
+	        console.log(event.detail);
+
+            const { name } = event.detail;
+
+            let hole = name.substring(11);
+
+            hole = parseInt(hole - 1);
+
+            if (hole < 5 && hole >= 0 && holesEnabled) {
+                handleHoleSelect(hole);
+            }
+
+        }, false);
     </script>
 </body>
 </html>
