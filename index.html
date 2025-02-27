@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Whack-a-Mole</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px;
+        }
+
+        .hole {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #654321;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #score {
+            font-size: 24px;
+            margin: 10px;
+        }
+
+        #message {
+            font-size: 20px;
+            margin: 10px;
+            min-height: 24px;
+        }
+
+        #startBtn {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="message">Click Start to play!</div>
+    <div class="game-container">
+        <div class="hole" data-index="0">🕳️</div>
+        <div class="hole" data-index="1">🕳️</div>
+        <div class="hole" data-index="2">🕳️</div>
+        <div class="hole" data-index="3">🕳️</div>
+        <div class="hole" data-index="4">🕳️</div>
+        <div class="hole" data-index="5">🕳️</div>
+        <div class="hole" data-index="6">🕳️</div>
+        <div class="hole" data-index="7">🕳️</div>
+        <div class="hole" data-index="8">🕳️</div>
+    </div>
+    <button id="startBtn">Start Game</button>
+
+    <script>
+        const holes = document.querySelectorAll('.hole');
+        const startBtn = document.getElementById('startBtn');
+        const scoreElement = document.getElementById('score');
+        const messageElement = document.getElementById('message');
+        let score = 0;
+        let rounds = 0;
+        let currentGameActive = false;
+
+        function updateScore() {
+            scoreElement.textContent = `Score: ${score}`;
+        }
+
+        function startGame() {
+            if (currentGameActive) return;
+            currentGameActive = true;
+            score = 0;
+            rounds = 0;
+            updateScore();
+            startBtn.disabled = true;
+            messageElement.textContent = "Pick a hole!";
+            setupNextRound();
+        }
+
+        function setupNextRound() {
+            if (rounds >= 10) {
+                endGame();
+                return;
+            }
+            enableHoles();
+        }
+
+        function enableHoles() {
+            holes.forEach(hole => {
+                hole.textContent = '🕳️';
+                hole.style.pointerEvents = 'auto';
+                hole.addEventListener('click', handleHoleClick, { once: true });
+            });
+        }
+
+        function disableHoles() {
+            holes.forEach(hole => {
+                hole.style.pointerEvents = 'none';
+            });
+        }
+
+        function handleHoleClick(e) {
+            const selectedHole = parseInt(e.target.dataset.index);
+            disableHoles();
+            revealMole(selectedHole);
+        }
+
+        function revealMole(selectedHole) {
+            const moleHole = Math.floor(Math.random() * 9);
+            holes[moleHole].textContent = '🦡';
+            
+            if (selectedHole === moleHole) {
+                score++;
+                updateScore();
+                messageElement.textContent = "Correct! +1 point!";
+            } else {
+                messageElement.textContent = `Wrong! Mole was in hole ${moleHole + 1}`;
+            }
+
+            rounds++;
+            setTimeout(() => {
+                holes[moleHole].textContent = '🕳️';
+                if (rounds < 10) {
+                    messageElement.textContent = "Pick a hole!";
+                    setupNextRound();
+                } else {
+                    endGame();
+                }
+            }, 1500);
+        }
+
+        function endGame() {
+            currentGameActive = false;
+            messageElement.textContent = `Game Over! Final Score: ${score}`;
+            startBtn.disabled = false;
+        }
+
+        startBtn.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
