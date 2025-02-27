@@ -12,7 +12,7 @@
 
         .game-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin: 20px;
         }
@@ -58,10 +58,6 @@
         <div class="hole" data-index="2">🕳️</div>
         <div class="hole" data-index="3">🕳️</div>
         <div class="hole" data-index="4">🕳️</div>
-        <div class="hole" data-index="5">🕳️</div>
-        <div class="hole" data-index="6">🕳️</div>
-        <div class="hole" data-index="7">🕳️</div>
-        <div class="hole" data-index="8">🕳️</div>
     </div>
     <button id="startBtn">Start Game</button>
 
@@ -118,7 +114,7 @@
         }
 
         function revealMole(selectedHole) {
-            const moleHole = Math.floor(Math.random() * 9);
+            const moleHole = Math.floor(Math.random() * holes.length);
             holes[moleHole].textContent = '🦡';
             
             if (selectedHole === moleHole) {
