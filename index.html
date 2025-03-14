@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Whack-a-Mole</title>
+    <title>Guess-a-Mole</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
+            background: #f0f0f0;
         }
 
         .game-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px;
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 50px 0;
         }
 
         .hole {
+            position: absolute;
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: #654321;
+            background: #654321;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 40px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: transform 0.3s;
+            transform-origin: 200px 200px;
+            left: 160px;
+            top: 160px;
+        }
+
+        .hole.selected {
+            box-shadow: 0 0 15px yellow;
         }
 
         #score {
@@ -45,32 +54,70 @@
             padding: 10px 20px;
             font-size: 18px;
             margin-top: 20px;
-            cursor: pointer;
+            cursor: pointer;   
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(calc(3*360deg)); }
+        }
+
+        .rotating {
+            animation: rotate 2s linear;
         }
     </style>
 </head>
 <body>
     <div id="score">Score: 0</div>
     <div id="message">Click Start to play!</div>
-    <div class="game-container">
-        <div class="hole" data-index="0">🕳️</div>
-        <div class="hole" data-index="1">🕳️</div>
-        <div class="hole" data-index="2">🕳️</div>
-        <div class="hole" data-index="3">🕳️</div>
-        <div class="hole" data-index="4">🕳️</div>
+    <div id="hole-container" class="game-container">
     </div>
     <button id="startBtn">Start Game</button>
-    
+
     <script src="/Controller.min.js"></script>
     <script>
+        const ROUNDS = 10;
+        const HOLES = 5;
+
+        for (let i = 0; i < HOLES; i++) {
+            let hole = document.createElement('div');
+            hole.className = 'hole';
+            hole['data-index'] = i;
+            hole.textContent = '🕳️';
+            document.getElementById('hole-container').appendChild(hole);
+        }
+
         const holes = document.querySelectorAll('.hole');
         const startBtn = document.getElementById('startBtn');
         const scoreElement = document.getElementById('score');
         const messageElement = document.getElementById('message');
+        const gameContainer = document.querySelector('.game-container');
+        let selectedHoleIndex = 0;
         let score = 0;
         let rounds = 0;
         let currentGameActive = false;
         let holesEnabled = false;
+
+        function updateHoleHighlight() {
+            holes.forEach((hole, index) => {
+                hole.classList.toggle('selected', index === selectedHoleIndex);
+            });
+        }
+
+        function arrangeHoles() {
+            const radius = 150;
+            const angle = (2 * Math.PI) / holes.length;
+            
+            holes.forEach((hole, index) => {
+                const x = Math.cos(angle * index) * radius;
+                const y = Math.sin(angle * index) * radius;
+                hole.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        }
 
         function updateScore() {
             scoreElement.textContent = `Score: ${score}`;
@@ -83,20 +130,29 @@
             rounds = 0;
             updateScore();
             startBtn.disabled = true;
-            messageElement.textContent = "Pick a hole!";
+            messageElement.textContent = "Get ready...";
+            arrangeHoles();
             setupNextRound();
         }
 
         function setupNextRound() {
-            if (rounds >= 10) {
+            if (rounds >= ROUNDS) {
                 endGame();
                 return;
             }
-            enableHoles();
+
+            gameContainer.classList.add('rotating');
+            setTimeout(() => {
+                gameContainer.classList.remove('rotating');
+                messageElement.textContent = "Pick a hole!";
+                enableHoles();
+            }, 2000);
         }
 
         function enableHoles() {
             holesEnabled = true;
+            selectedHoleIndex = 0;
+            updateHoleHighlight();
             holes.forEach(hole => {
                 hole.textContent = '🕳️';
                 hole.style.pointerEvents = 'auto';
@@ -108,6 +164,7 @@
             holesEnabled = false;
             holes.forEach(hole => {
                 hole.style.pointerEvents = 'none';
+                hole.classList.remove('highlight');
             });
         }
 
@@ -136,7 +193,7 @@
             rounds++;
             setTimeout(() => {
                 holes[moleHole].textContent = '🕳️';
-                if (rounds < 10) {
+                if (rounds < ROUNDS) {
                     messageElement.textContent = "Pick a hole!";
                     setupNextRound();
                 } else {
@@ -156,19 +213,40 @@
         Controller.search();
 
         window.addEventListener('gc.button.press', function(event) {
-	        console.log(event.detail);
+            if (!holesEnabled) return;
 
             const { name } = event.detail;
 
-            let hole = name.substring(11);
+            let action = name.substring(11);
+            
+            action = parseInt(action - 1);
 
-            hole = parseInt(hole - 1);
+	        console.log(event.detail, action);
 
-            if (hole < 5 && hole >= 0 && holesEnabled) {
-                handleHoleSelect(hole);
+            // 5, 7 Clockwise increment
+            // 4, 6 Counterclockwise increment
+            // 3 Select
+            switch (action) {
+                case 4:
+                case 6:
+                    selectedHoleIndex = (selectedHoleIndex - 1 + HOLES) % HOLES;
+                    updateHoleHighlight();
+                    break;
+                case 5:
+                case 7:
+                    selectedHoleIndex = (selectedHoleIndex + 1) % HOLES;
+                    updateHoleHighlight();
+                    break;
+                case 3:
+                    handleHoleSelect(selectedHoleIndex);
+                    break;
+                
             }
 
+
         }, false);
+
+        arrangeHoles();
     </script>
 </body>
 </html>
