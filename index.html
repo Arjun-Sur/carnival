@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Guess-a-Mole</title>
     <style>
@@ -7,15 +8,44 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
+            font-family: 'Comic Sans MS', cursive;
+            background: url('https://content.arjunsur.me/carnival/bg.svg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            min-height: 100vh;
         }
 
-        .game-container {
+        .game-title {
+            font-size: 2.5em;
+            color: #fff;
+            text-shadow: 2px 2px 4px #000;
+            margin: 20px 0;
+            background-color: #83d828;
+            padding: 10px 20px;
+            border-radius: 15px;
+        }
+
+        .hole-container {
             position: relative;
             width: 400px;
             height: 400px;
-            margin: 50px 0;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            overflow: visible;
+            transform: translateZ(0);
+        }
+
+        .holes-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform-origin: center center;
         }
 
         .hole {
@@ -27,80 +57,345 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 40px;
+            font-size: 65px;
             cursor: pointer;
-            transition: transform 0.3s;
-            transform-origin: 200px 200px;
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid #432010;
+            transition: transform 0.2s ease;
+            transform:
+                rotate(var(--hole-angle)) translate(150px, 0) rotate(calc(-1 * var(--hole-angle)));
+            transform-origin: center center;
             left: 160px;
             top: 160px;
         }
 
-        .hole.selected {
-            box-shadow: 0 0 15px yellow;
+        .mole-image {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: popUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 1.94);
+            display: none;
+        }
+
+        .mole-visible .mole-image {
+            display: block;
+        }
+
+        .selected {
+            animation: bounce 0.5s infinite;
+        }
+
+        .hammer {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: -20px;
+            left: -40%;
+            background: url('https://content.arjunsur.me/carnival/mole2.png') no-repeat center center;
+            background-size: contain;
+            scale: 3;
+            animation: hammerFall 0.5s forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes hammerFall {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            30% {
+                transform: translateY(-20px) rotate(45deg);
+            }
+
+            100% {
+                transform: translateY(20px) translateX(35px) rotate(-90deg);
+            }
+        }
+
+        .selected::after {
+            content: '';
+            position: absolute;
+            background: url('https://content.arjunsur.me/carnival/mole2.png') no-repeat;
+            width: 80px;
+            height: 80px;
+            top: -20px;
+            left: 100%;
+            transform: scale(3) translateX(-50%);
+            background-size: contain;
+            display: none;
+        }
+
+        .happy-mole {
+            background-image: url('https://content.arjunsur.me/carnival/mole4.png') !important;
+            animation: popUp 0.3s;
+        }
+
+        .sad-mole {
+            background-image: url('https://content.arjunsur.me/carnival/mole3.png') !important;
+            /* animation-direction: alternate;
+            animation: shake 0.5s, popUp 0.6s; */
+            animation-name: popUp, shake;
+            animation-duration: 0.5s, 0.75s;
+            animation-iteration-count: 1, infinite;
+            animation-delay: 0s, 0.4s;
+        }
+
+        .holes-active .selected::after {
+            display: block;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform:
+                    rotate(var(--hole-angle)) translate(150px) rotate(calc(-1 * var(--hole-angle))) translateY(0);
+            }
+
+            50% {
+                transform:
+                    rotate(var(--hole-angle)) translate(150px) rotate(calc(-1 * var(--hole-angle))) translateY(-10px);
+            }
+        }
+
+        @keyframes popUp {
+            0% {
+                transform: translateX(-50%) translateY(20%);
+            }
+
+            80% {
+                transform: translateX(-50%) translateY(-20px);
+            }
+
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(-60px);
+            }
+
+            25% {
+                transform: translateX(-50px);
+            }
+
+            50% {
+                transform: translateX(-70px);
+            }
+
+            75% {
+                transform: translateX(-50px);
+            }
+
+            100% {
+                transform: translateX(-60px);
+            }
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         #score {
             font-size: 24px;
-            margin: 10px;
+            margin: 10px auto;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         #message {
             font-size: 20px;
             margin: 10px;
             min-height: 24px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         #startBtn {
             padding: 10px 20px;
             font-size: 18px;
             margin-top: 20px;
-            cursor: pointer;   
+            cursor: pointer;
             background: #4CAF50;
+            font-family: 'Comic Sans MS', cursive;
             color: white;
             border: none;
             border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #startBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            background: #45a049;
         }
 
         @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(calc(3*360deg)); }
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
-        .rotating {
+        .rotating-holes .holes-wrapper {
             animation: rotate 2s linear;
+        }
+
+        /* Add stats panel styles */
+        #stats {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            display: none;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .stats-table th {
+            background-color: #83d828;
+            color: white;
+        }
+
+        .close-stats {
+            float: right;
+            cursor: pointer;
+            padding: 5px 10px;
+            background: #af4c4c;
+            color: white;
+            border-radius: 5px;
+        }
+
+        #room {
+            position: absolute;
+            left: 0;
         }
     </style>
 </head>
+
 <body>
+    <h1 class="game-title">🎯 <i>Guess</i>-a-Mole! 🎯</h1>
     <div id="score">Score: 0</div>
-    <div id="message">Click Start to play!</div>
-    <div id="hole-container" class="game-container">
+    <div id="message">Click Start to play! 🚀</div>
+    <div id="hole-container" class="hole-container">
+        <div class="holes-wrapper">
+        </div>
     </div>
-    <button id="startBtn">Start Game</button>
+    <div id="stats">
+        <div class="close-stats" onclick="document.getElementById('stats').style.display = 'none'">✕</div>
+        <h2>Game Statistics</h2>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Your Guess</th>
+                    <th>Correct Hole</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="stats-body"></tbody>
+        </table>
+        <p>Total Score: <span id="stats-score">0</span></p>
+        <p>Accuracy: <span id="stats-accuracy">0%</span></p>
+        <p>Ranking: #<span id="stats-ranking">...</span></p>
+    </div>
+    <button id="startBtn">Start Game 🎮</button>
+    <button id="room">Join Room</button>
+
+    <!-- Sound Effects -->
+    <audio id="startSound" src="https://content.arjunsur.me/carnival/sound/start.wav"></audio>
+    <audio id="moveSound" src="https://content.arjunsur.me/carnival/sound/move.wav"></audio>
+    <audio id="selectSound" src="https://content.arjunsur.me/carnival/sound/select.wav"></audio>
+    <audio id="successSound" src="https://content.arjunsur.me/carnival/sound/success.wav"></audio>
+    <audio id="failSound" src="https://content.arjunsur.me/carnival/sound/fail.wav"></audio>
+    <audio id="pointSound" src="https://content.arjunsur.me/carnival/sound/point.wav"></audio>
+    <dialog id="roomDialog">
+        <form method="dialog">
+            <button style="float: right">X</button>
+        </form>
+        <h3>Enter Room Details</h3>
+        <form id="roomForm" method="dialog">
+            <div>
+                <label for="id">Room Id:</label>
+                <input type="number" id="id" name="id" required minlength="1" min="0" />
+            </div>
+            <div>
+                <label for="name">Password:</label>
+                <input type="password" id="password" name="password" pattern="^[0-9a-zA-Z]+$" minlength="1" size="13" />
+            </div>
+            <button>Enter</button>
+        </form>
+    </dialog>
 
     <script src="/Controller.min.js"></script>
     <script>
         const ROUNDS = 10;
         const HOLES = 5;
+        const RADIUS = 150;
+        const sounds = {
+            start: document.getElementById('startSound'),
+            move: document.getElementById('moveSound'),
+            select: document.getElementById('selectSound'),
+            success: document.getElementById('successSound'),
+            fail: document.getElementById('failSound'),
+            point: document.getElementById('pointSound')
+        };
 
+        const holeContainer = document.querySelector('.holes-wrapper');
         for (let i = 0; i < HOLES; i++) {
-            let hole = document.createElement('div');
+            const hole = document.createElement('div');
             hole.className = 'hole';
-            hole['data-index'] = i;
+            hole.dataset.index = i;
             hole.textContent = '🕳️';
-            document.getElementById('hole-container').appendChild(hole);
+            const angle = (2 * Math.PI * i) / HOLES;
+            hole.style.setProperty('--hole-angle', `${angle}rad`);
+            holeContainer.appendChild(hole);
         }
 
         const holes = document.querySelectorAll('.hole');
         const startBtn = document.getElementById('startBtn');
         const scoreElement = document.getElementById('score');
         const messageElement = document.getElementById('message');
-        const gameContainer = document.querySelector('.game-container');
         let selectedHoleIndex = 0;
         let score = 0;
         let rounds = 0;
+        let answers = [];
+        let choices = [];
+        let room;
+        let password;
         let currentGameActive = false;
-        let holesEnabled = false;
 
         function updateHoleHighlight() {
             holes.forEach((hole, index) => {
@@ -109,48 +404,59 @@
         }
 
         function arrangeHoles() {
-            const radius = 150;
-            const angle = (2 * Math.PI) / holes.length;
-            
+            const angleStep = (2 * Math.PI) / HOLES;
             holes.forEach((hole, index) => {
-                const x = Math.cos(angle * index) * radius;
-                const y = Math.sin(angle * index) * radius;
-                hole.style.transform = `translate(${x}px, ${y}px)`;
+                const angle = angleStep * index;
+                hole.style.setProperty('--hole-angle', `${angle}rad`);
+                // Remove the direct transform manipulation
             });
         }
 
         function updateScore() {
-            scoreElement.textContent = `Score: ${score}`;
+            scoreElement.textContent = `Score: ${score} | Round: ${rounds + 1}/${ROUNDS}`;
+            scoreElement.style.animation = 'none';
+            void scoreElement.offsetWidth;
+            scoreElement.style.animation = 'bounce 0.5s';
         }
 
         function startGame() {
             if (currentGameActive) return;
+            document.getElementById('hole-container').style.display = 'block';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('score').classList.remove('hidden');
+            document.getElementById('message').classList.remove('hidden');
+            startBtn.textContent = "End Game ⏹";
+            startBtn.style.background = "#af4c4c";
+            sounds.start.play();
             currentGameActive = true;
             score = 0;
             rounds = 0;
             updateScore();
-            startBtn.disabled = true;
-            messageElement.textContent = "Get ready...";
+            startBtn.disabled = false; // Keep enabled for End Game
+            messageElement.textContent = "Get ready... 🌟";
+            holeContainer.classList.remove('holes-active');
             arrangeHoles();
             setupNextRound();
         }
 
         function setupNextRound() {
+
+            updateScore();
+
             if (rounds >= ROUNDS) {
                 endGame();
                 return;
             }
 
-            gameContainer.classList.add('rotating');
+            holeContainer.parentElement.classList.add('rotating-holes');
             setTimeout(() => {
-                gameContainer.classList.remove('rotating');
-                messageElement.textContent = "Pick a hole!";
+                holeContainer.parentElement.classList.remove('rotating-holes');
                 enableHoles();
             }, 2000);
         }
 
         function enableHoles() {
-            holesEnabled = true;
+            holeContainer.classList.add('holes-active');
             selectedHoleIndex = 0;
             updateHoleHighlight();
             holes.forEach(hole => {
@@ -161,14 +467,15 @@
         }
 
         function disableHoles() {
-            holesEnabled = false;
+            holeContainer.classList.remove('holes-active');
             holes.forEach(hole => {
                 hole.style.pointerEvents = 'none';
-                hole.classList.remove('highlight');
+                hole.classList.remove('selected');
             });
         }
 
         function handleHoleClick(e) {
+            sounds.select.play();
             const selectedHole = parseInt(e.target.dataset.index);
             handleHoleSelect(selectedHole);
         }
@@ -180,21 +487,36 @@
 
         function revealMole(selectedHole) {
             const moleHole = Math.floor(Math.random() * holes.length);
-            holes[moleHole].textContent = '🦡';
-            
-            if (selectedHole === moleHole) {
-                score++;
-                updateScore();
-                messageElement.textContent = "Correct! +1 point!";
-            } else {
-                messageElement.textContent = `Wrong! Mole was in hole ${moleHole + 1}`;
-            }
+            const moleElement = holes[moleHole];
+
+            answers.push(moleHole);
+            choices.push(selectedHole);
+
+            const hammer = document.createElement('div');
+            hammer.className = 'hammer';
+            holes[selectedHole].appendChild(hammer);
+
+            const moleImage = document.createElement('div');
+            moleImage.className = `mole-image ${selectedHole !== moleHole ? 'happy-mole' : 'sad-mole'}`;
+            moleElement.appendChild(moleImage);
+            moleElement.classList.add('mole-visible');
 
             rounds++;
             setTimeout(() => {
-                holes[moleHole].textContent = '🕳️';
+                document.querySelectorAll('.hammer').forEach(hammer => hammer.remove());
+                moleElement.classList.remove('mole-visible');
+                moleElement.removeChild(moleImage);
+                if (selectedHole === moleHole) {
+                    score++;
+                    updateScore();
+                    messageElement.textContent = "WHACKED IT! +1 POINT! 🎉";
+                    sounds.success.play();
+                    sounds.point.play();
+                } else {
+                    messageElement.textContent = `Wrong! Mole was in hole ${moleHole + 1} 😢`;
+                    sounds.fail.play();
+                }
                 if (rounds < ROUNDS) {
-                    messageElement.textContent = "Pick a hole!";
                     setupNextRound();
                 } else {
                     endGame();
@@ -204,49 +526,134 @@
 
         function endGame() {
             currentGameActive = false;
-            messageElement.textContent = `Game Over! Final Score: ${score}`;
+            messageElement.textContent = `GAME OVER! Final Score: ${score} 🏁`;
+            disableHoles();
+            startBtn.textContent = "Start Game 🎮";
+            startBtn.style.background = "#4CAF50";
+            document.getElementById('score').classList.add('hidden');
+            document.getElementById('message').classList.add('hidden');
+
+            const statsBody = document.getElementById('stats-body');
+            statsBody.innerHTML = '';
+            let correctCount = 0;
+
+            choices.forEach((choice, index) => {
+                const correct = choice === answers[index];
+                if (correct) correctCount++;
+                statsBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>Hole ${choice + 1}</td>
+                    <td>Hole ${answers[index] + 1}</td>
+                    <td>${correct ? '✅ Correct' : '❌ Wrong'}</td>
+                </tr>
+            `;
+            });
+
+            document.getElementById('stats-score').textContent = score;
+            const accuracy = Math.round((correctCount / ROUNDS) * 100);
+            document.getElementById('stats-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('stats').style.display = 'block';
+            document.getElementById('hole-container').style.display = 'none';
+
+            if (room && password && choices.length == ROUNDS) {
+                fetch('/data', {
+                    method: "PUT",
+                    body: JSON.stringify({ room: { room, password }, username: "Unnamed", holes: answers, choices }),
+                }).then(response => {
+                    if (response.status == 201) {
+                        response.json().then(json => {
+                            document.getElementById('stats-ranking').textContent = json?.rank;
+                        })
+                    }
+                });
+            }
+
             startBtn.disabled = false;
         }
 
-        startBtn.addEventListener('click', startGame);
+        startBtn.addEventListener('click', function () {
+            if (currentGameActive) {
+                endGame();
+            } else {
+                startGame();
+            }
+        });
+
+        document.getElementById('room').addEventListener('click', function () {
+            document.getElementById('roomDialog').open = true;
+        });
+
+        document.getElementById('roomForm').addEventListener('submit', async function (e) {
+            const id = document.getElementById('id').value;
+            const passwordInput = document.getElementById('password').value;
+
+            const response = await fetch('/data', {
+                method: "POST",
+                body: JSON.stringify({ room: { id, password: passwordInput } }),
+            });
+            if (response.status == 200) {
+                room = id;
+                password = passwordInput;
+
+                const { name } = await response.json();
+                alert("Room verified! Welcome to '" + name + "'!")
+            } else {
+                e.preventDefault();
+                alert("Invalid room details.")
+            }
+        });
+
+        arrangeHoles();
 
         Controller.search();
-
-        window.addEventListener('gc.button.press', function(event) {
-            if (!holesEnabled) return;
-
+        window.addEventListener('gc.button.press', function (event) {
             const { name } = event.detail;
-
             let action = name.substring(11);
-            
+            let increment = 1;
+
             action = parseInt(action - 1);
 
-	        console.log(event.detail, action);
+            if (action == 9 || action == 8) {
+                if (currentGameActive) {
+                    endGame();
+                } else {
+                    startGame();
+                }
+                return;
+            }
+
+            if (!currentGameActive || !holeContainer.classList.contains('holes-active')) return;
 
             // 5, 7 Clockwise increment
             // 4, 6 Counterclockwise increment
             // 3 Select
             switch (action) {
-                case 4:
                 case 6:
-                    selectedHoleIndex = (selectedHoleIndex - 1 + HOLES) % HOLES;
+                    increment++;
+                case 4:
+                    sounds.move.play();
+                    selectedHoleIndex = (selectedHoleIndex - increment + HOLES) % HOLES;
                     updateHoleHighlight();
                     break;
-                case 5:
                 case 7:
-                    selectedHoleIndex = (selectedHoleIndex + 1) % HOLES;
+                    increment++;
+                case 5:
+                    sounds.move.play();
+                    selectedHoleIndex = (selectedHoleIndex + increment) % HOLES;
                     updateHoleHighlight();
                     break;
                 case 3:
+                case 2:
+                    sounds.select.play();
                     handleHoleSelect(selectedHoleIndex);
                     break;
-                
             }
-
-
         }, false);
 
-        arrangeHoles();
+        document.getElementById('score').classList.add('hidden');
+        document.getElementById('message').classList.add('hidden');
     </script>
 </body>
+
 </html>
