@@ -393,6 +393,7 @@
         let rounds = 0;
         let answers = [];
         let choices = [];
+        let moves = [];
         let room;
         let password;
         let currentGameActive = false;
@@ -433,6 +434,7 @@
             rounds = 0;
             answers = [];
             choices = [];
+            moves = [];
             updateScore();
             startBtn.disabled = false; // Keep enabled for End Game
             messageElement.textContent = "Get ready... 🌟";
@@ -562,7 +564,7 @@
             if (room && password && choices.length == ROUNDS) {
                 fetch('/data', {
                     method: "PUT",
-                    body: JSON.stringify({ room: { id: room, password }, username: "", holes: answers, choices }),
+                    body: JSON.stringify({ room: { id: room, password }, username: "", holes: answers, choices, moves }),
                 }).then(response => {
                     if (response.status == 201) {
                         response.json().then(json => {
@@ -627,6 +629,8 @@
             }
 
             if (!currentGameActive || !holeContainer.classList.contains('holes-active')) return;
+
+            moves.push(action);
 
             // 5, 7 Clockwise increment
             // 4, 6 Counterclockwise increment
