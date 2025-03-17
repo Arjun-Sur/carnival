@@ -50,7 +50,7 @@ export default {
 		}
 
 		if (request.method === "PUT") {
-			const data = JSON.parse(await request.text());
+			const data = await request.json();
 			const verified = await verifyRoom(parseInt(data.room.id), data.room.password);
 
 			if (verified) {
