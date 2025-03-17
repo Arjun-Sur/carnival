@@ -29,9 +29,9 @@ export default {
 		}
 
 		const putScore = async (room, score, username, data, timestamp) => {
-			if (!username.match(/^[0-9a-zA-Z]+$/)) return false;
 			let statement;
 			if (username) {
+				if (!username.match(/^[0-9a-zA-Z]+$/)) return false;
 				statement = env.DB.prepare(`INSERT INTO scores (room, score, username, data, timestamp) VALUES (?, ?, ?, ?, ?)`).bind(room, score, username, data, timestamp);
 			} else {
 				statement = env.DB.prepare(`INSERT INTO scores (room, score, data, timestamp) VALUES (?, ?, ?, ?, ?)`).bind(room, score, data, timestamp);
