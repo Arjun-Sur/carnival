@@ -50,7 +50,7 @@ export default {
 		}
 
 		if (request.method === "PUT") {
-			const data = parse(await request.text());
+			const data = JSON.parse(await request.text());
 			const verified = await verifyRoom(parseInt(data.room.id), data.room.password);
 
 			if (verified) {
@@ -62,7 +62,7 @@ export default {
 					}
 				}
 
-				const result = await putScore(data.room.id, score, (data.username.length > 0 ? data.username : undefined), stringify(data), Date.now());
+				const result = await putScore(data.room.id, score, (data.username.length > 0 ? data.username : undefined), JSON.stringify(data), Date.now());
 
 				if (result?.success) {
 					const id = result.meta.last_row_id;
