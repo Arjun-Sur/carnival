@@ -431,6 +431,8 @@
             currentGameActive = true;
             score = 0;
             rounds = 0;
+            answers = [];
+            choices = [];
             updateScore();
             startBtn.disabled = false; // Keep enabled for End Game
             messageElement.textContent = "Get ready... 🌟";
@@ -555,11 +557,12 @@
             document.getElementById('stats-accuracy').textContent = `${accuracy}%`;
             document.getElementById('stats').style.display = 'block';
             document.getElementById('hole-container').style.display = 'none';
+            document.getElementById('stats-ranking').textContent = '...';
 
             if (room && password && choices.length == ROUNDS) {
                 fetch('/data', {
                     method: "PUT",
-                    body: JSON.stringify({ room: { id: room, password }, username: "Unnamed", holes: answers, choices }),
+                    body: JSON.stringify({ room: { id: room, password }, username: "", holes: answers, choices }),
                 }).then(response => {
                     if (response.status == 201) {
                         response.json().then(json => {
