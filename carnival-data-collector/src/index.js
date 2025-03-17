@@ -90,7 +90,7 @@ export default {
 			if (verified) {
 				const name = await getRoomName(data.room.id);
 				return new Response(JSON.stringify({ name }), {
-					status: 406
+					status: 200
 				});
 			} else {
 				return new Response(null, {
