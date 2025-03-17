@@ -9,7 +9,14 @@
 	"compatibility_date": "2025-03-13",
 	"observability": {
 		"enabled": true
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "carnival-data",
+			"database_id": "971b7a9e-48d7-4e87-bf75-72e0e5601d5c"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
