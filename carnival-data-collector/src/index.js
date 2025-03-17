@@ -1,5 +1,4 @@
 // Not exactly the best code, but it does the job
-import { parse, stringify } from 'lossless-json'
 
 export default {
 	async fetch(request, env, ctx) {
@@ -58,7 +57,7 @@ export default {
 				let score = 0;
 
 				for (let i = 0; i < data.holes.length; i++) {
-					if (data.holes[i] = data.choices[i]) {
+					if (data.holes[i] == data.choices[i]) {
 						score++;
 					}
 				}
